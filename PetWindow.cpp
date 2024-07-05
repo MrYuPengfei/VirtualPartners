@@ -261,6 +261,9 @@ void PetWindow::onPlayMontdidor(bool checked)
         this->actionPlayLiyue->setChecked(false);
         this->actionPlayInazuma->setChecked(false);
         this->playBackgroundMusic("蒙德");
+    } else {
+        this->isPlayBackgroundAudio = false;
+        this->backgroundMusicPlayer->stop();
     }
 }
 void PetWindow::onPlayLiyue(bool checked)
@@ -270,6 +273,9 @@ void PetWindow::onPlayLiyue(bool checked)
         this->actionPlayMontdidor->setChecked(false);
         this->actionPlayInazuma->setChecked(false);
         this->playBackgroundMusic("璃月");
+    } else {
+        this->isPlayBackgroundAudio = false;
+        this->backgroundMusicPlayer->stop();
     }
 }
 void PetWindow::onPlayInazuma(bool checked)
@@ -279,6 +285,9 @@ void PetWindow::onPlayInazuma(bool checked)
         this->actionPlayMontdidor->setChecked(false);
         this->actionPlayLiyue->setChecked(false);
         this->playBackgroundMusic("稻妻");
+    } else {
+        this->isPlayBackgroundAudio = false;
+        this->backgroundMusicPlayer->stop();
     }
 }
 void PetWindow::onRoleVoice(bool checked)
@@ -290,6 +299,7 @@ void PetWindow::onRoleVoice(bool checked)
         this->greeting();
     } else {
         this->isPlayRoleAudio = false;
+        this->roleVoicePlayer->stop();
     }
 }
 
