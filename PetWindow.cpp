@@ -55,8 +55,54 @@ PetWindow::PetWindow()
 
 PetWindow::~PetWindow()
 {
-    delete menu;
+    // 停止所有音乐播放
+    if (backgroundMusicPlayer) {
+        backgroundMusicPlayer->stop();
+        delete backgroundMusicPlayer;
+        backgroundMusicPlayer = nullptr;
+    }
+    if (roleVoicePlayer) {
+        roleVoicePlayer->stop();
+        delete roleVoicePlayer;
+        roleVoicePlayer = nullptr;
+    }
+
+    // 删除音频输出
+    delete audioOutput1;
+    delete audioOutput2;
+
+    // 停止定时器
+    if (timer) {
+        timer->stop();
+        delete timer;
+        timer = nullptr;
+    }
+
+    // 删除托盘图标和菜单
+    if (trayIcon) {
+        trayIcon->hide();
+        delete trayIcon;
+        trayIcon = nullptr;
+    }
     delete tray_menu;
+    delete menu;
+    delete menu_roles;
+    delete menu_voice;
+
+    // 删除动作
+    delete knowing;
+    delete talking;
+    delete hideAction;
+    delete showAction;
+    delete quitAction;
+    delete actionPlayMontdidor;
+    delete actionPlayLiyue;
+    delete actionPlayInazuma;
+    delete actionPlayRoleVoice;
+    delete actionStopAll;
+
+    // 删除角色图片标签
+    delete role_figure;
 }
 void PetWindow::init_tray()
 {
