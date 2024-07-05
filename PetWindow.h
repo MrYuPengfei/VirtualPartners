@@ -9,6 +9,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QPoint>
@@ -25,7 +26,16 @@
 class PetWindow : public QMainWindow
 {
     Q_OBJECT
+public:
+    PetWindow();
+    ~PetWindow();
+
 private:
+    QTimer *timer;
+    QMediaPlayer *backgroundMusicPlayer;
+    QMediaPlayer *roleVoicePlayer;
+    QAudioOutput *audioOutput1;
+    QAudioOutput *audioOutput2;
     QString base_path = QString("data");
     QString music_path = QString("music");
     QString image_path = QString("png");
@@ -38,20 +48,25 @@ private:
     bool isDragging;          // 是否正在拖动窗口
     // QPoint mouse_drag_pos;
     // bool is_follow_mouse; // 鼠标是否跟随标志
-    QTimer *timer;
 
-    bool audio_background = false;
-    bool audio_role = false;
+    // bool audio_background = false;
+    // bool audio_role = false;
     double scale = 1.0;
-
-    QMediaPlayer *mediaPlayer;
+    bool isPlayAudio = false;
+    bool isPlayBackgroundAudio = false;
+    bool isPlayRoleAudio = true;
     QSystemTrayIcon *trayIcon;
     QMenu *menu;
+    QAction *knowing;
+    QAction *talking;
+    QAction *hideAction;
+    QAction *showAction;
+    QAction *quitAction;
     QMenu *tray_menu;
     QMenu *menu_roles;
     QMenu *menu_voice;
     QLabel *role_figure;
-    QPixmap *role_pixmap;
+    QPixmap role_pixmap;
     qsizetype role_figure_index = 0;
     int screenheight;
     int screenwidth;
@@ -65,27 +80,34 @@ private:
     QAction *bcsz; //八重神子
     QAction *bnt;  //班尼特
     QAction *dan;  //迪奥娜
-    QAction *md_music;
-    QAction *ly_music;
-    QAction *dq_music;
-    QAction *role_music;
-    QAction *music_off;
-    QAction *showAction;
-    QAction *quitAction;
+
+    QAction *actionPlayMontdidor; //menu_voice->addAction("播放蒙德");
+    QAction *actionPlayLiyue;     //= menu_voice->addAction("播放璃月");
+    QAction *actionPlayInazuma;   //= menu_voice->addAction("播放稻妻");
+    QAction *actionPlayRoleVoice; // = menu_voice->addAction("角色语音");
+    QAction *actionStopAll;       //= menu_voice->addAction("关闭所有音乐");
 
 private:
     void adjustWindowSize();
     void init_window();  //窗口初始化
     void init_tray();    //任务栏菜单
     void update_lists(); //
+    void greeting();     //问好，并调整当前时间)
+    void playBackgroundMusic(const QString &musicName);
 private slots:
     void set_role();
-    void set_audio();
     void updateAnimation();
-
-public:
-    PetWindow();
-    void showWindow();
+private slots:
+    void onKnowTriggered();
+    void onTalkTriggered();
+    void onQuitTriggered();
+    void onHideTriggered();
+    void onShowTriggered();
+    void onPlayMontdidor(bool checked);
+    void onPlayLiyue(bool checked);
+    void onPlayInazuma(bool checked);
+    void onRoleVoice(bool checked);
+    void onStopAllVocie(bool checked);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override; //重写上下文菜单
@@ -93,6 +115,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;         // 重写鼠标移动事件
     void mouseReleaseEvent(QMouseEvent *event) override;      // 重写鼠标释放事件
     void keyPressEvent(QKeyEvent *event) override;            // 重写键盘敲击事件
+    // void closeEvent(QCloseEvent *event) override; // 关闭窗口时隐藏而不是退出程序：
 };
 
 #endif // PETWINDOW_H
