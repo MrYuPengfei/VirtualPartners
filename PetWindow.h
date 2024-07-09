@@ -31,19 +31,19 @@ public:
     ~PetWindow();
 
 private:
+    QString base_path;
+    QString music_path;
+    QString image_path;
+    QString bgm_name;
+    QString role_name;
+    QFileInfoList image_list;
+    QFileInfoList talk_list;
+    QFileInfoList know_list;
     QTimer *timer;
     QMediaPlayer *backgroundMusicPlayer;
     QMediaPlayer *roleVoicePlayer;
     QAudioOutput *audioOutput1;
     QAudioOutput *audioOutput2;
-    QString base_path = QString("data");
-    QString music_path = QString("music");
-    QString image_path = QString("png");
-    QString bg_music = QString("稻妻");
-    QString role_name = QString("八重神子");
-    QFileInfoList image_list;
-    QFileInfoList talk_list;
-    QFileInfoList know_list;
     QPoint lastMousePosition; // 上一次鼠标的位置
     bool isDragging;          // 是否正在拖动窗口
     // QPoint mouse_drag_pos;
@@ -65,6 +65,7 @@ private:
     QMenu *tray_menu;
     QMenu *menu_roles;
     QMenu *menu_voice;
+    QMenu *menu_bgms;
     QLabel *role_figure;
     QPixmap role_pixmap;
     qsizetype role_figure_index = 0;
@@ -75,16 +76,15 @@ private:
     int pos_x;
     int pos_y;
     int now_time;
-
-    QAction *bbl;  //芭芭拉
-    QAction *bcsz; //八重神子
-    QAction *bnt;  //班尼特
-    QAction *dan;  //迪奥娜
-
-    QAction *actionPlayMontdidor; //menu_voice->addAction("播放蒙德");
-    QAction *actionPlayLiyue;     //= menu_voice->addAction("播放璃月");
-    QAction *actionPlayInazuma;   //= menu_voice->addAction("播放稻妻");
-    QAction *actionPlayRoleVoice; // = menu_voice->addAction("角色语音");
+    QList<QAction *> roles;
+    QList<QAction *> bgms;
+    QActionGroup *group1;
+    QActionGroup *group2;
+    // QAction *actionPlayMontdidor; //menu_voice->addAction("播放蒙德");
+    // QAction *actionPlayLiyue;     //= menu_voice->addAction("播放璃月");
+    // QAction *actionPlayInazuma;   //= menu_voice->addAction("播放稻妻");
+    QAction *actionPlayRoleVoice;
+    QAction *actionPlayBackgroundMusic; // = menu_voice->addAction("角色语音");
     QAction *actionStopAll;       //= menu_voice->addAction("关闭所有音乐");
 
 private:
@@ -95,7 +95,8 @@ private:
     void greeting();     //问好，并调整当前时间)
     void playBackgroundMusic(const QString &musicName);
 private slots:
-    void set_role();
+    void set_bgm(bool checked);
+    void set_role(bool checked);
     void updateAnimation();
 private slots:
     void onKnowTriggered();
@@ -103,10 +104,11 @@ private slots:
     void onQuitTriggered();
     void onHideTriggered();
     void onShowTriggered();
-    void onPlayMontdidor(bool checked);
-    void onPlayLiyue(bool checked);
-    void onPlayInazuma(bool checked);
-    void onRoleVoice(bool checked);
+    // void onPlayMontdidor(bool checked);
+    // void onPlayLiyue(bool checked);
+    // void onPlayInazuma(bool checked);
+    void onPlayBackgroundMusic(bool checked);
+    void onPlayRoleVoice(bool checked);
     void onStopAllVocie(bool checked);
 
 protected:

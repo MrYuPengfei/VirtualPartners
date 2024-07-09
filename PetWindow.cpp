@@ -1,5 +1,6 @@
 #include "PetWindow.h"
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QAudioOutput>
 #include <QCursor>
@@ -22,8 +23,16 @@
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
+#include "config.h"
 PetWindow::PetWindow()
 {
+    this->base_path = QString(DATAPATH);
+    this->music_path = QString(MUSIC_PATH);
+    this->image_path = QString(PNG_PATH);
+    this->bgm_name = QString(BACKGROUND_MUSIC);
+    this->role_name = QString(ROLE_NAME);
+    this->roles = {};
+    this->bgms = {};
     // 设置窗口标志以隐藏任务栏图标，同时使窗口无边框并始终置顶
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
     this->setWindowIcon(QIcon("data/icon256.ico"));
@@ -88,6 +97,18 @@ PetWindow::~PetWindow()
     delete menu;
     delete menu_roles;
     delete menu_voice;
+    for (QAction *role : this->roles) {
+        if (role) {
+            delete role;
+            role = nullptr;
+        }
+    }
+    for (QAction *bgm : this->bgms) {
+        if (bgm) {
+            delete bgm;
+            bgm = nullptr;
+        }
+    }
 
     // 删除动作
     delete knowing;
@@ -95,9 +116,9 @@ PetWindow::~PetWindow()
     delete hideAction;
     delete showAction;
     delete quitAction;
-    delete actionPlayMontdidor;
-    delete actionPlayLiyue;
-    delete actionPlayInazuma;
+    // delete actionPlayMontdidor;
+    // delete actionPlayLiyue;
+    // delete actionPlayInazuma;
     delete actionPlayRoleVoice;
     delete actionStopAll;
 
@@ -109,8 +130,8 @@ void PetWindow::init_tray()
     // 初始化系统托盘图标
     this->trayIcon = new QSystemTrayIcon(this);
     this->trayIcon->setIcon(QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
-    this->trayIcon->setIcon(QIcon("data/icon256.ico")); // 设置托盘图标
-    this->trayIcon->setToolTip(QString("原来你也玩原神"));
+    this->trayIcon->setIcon(QIcon(ICON_PATH)); // 设置托盘图标
+    this->trayIcon->setToolTip(QString(TOOL_TIP));
     // 创建菜单
     this->tray_menu = new QMenu(this);
 
@@ -119,57 +140,72 @@ void PetWindow::init_tray()
     this->trayIcon->show();
 
     this->menu_roles = this->tray_menu->addMenu("人物");
-    this->menu_voice = this->tray_menu->addMenu("音乐");
+    {
+        this->group1 = new QActionGroup(this);
+        this->group1->setExclusive(true); // 设置为互斥
+        // 指定要打开的文件夹路径
+        QString folderPath = this->base_path + QDir::separator() + this->image_path;
+        // 创建QDir对象
+        QDir dir(folderPath);
+        // 获取目录下所有文件的列表
+        QStringList dirList = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        // 遍历文件列表
+        foreach (const QString &fileName, dirList) {
+            QAction *role = new QAction(fileName, this);
+            role->setProperty("role_name", fileName);
+            role->setCheckable(true);
+            this->roles.append(role); //append(role);
+            this->group1->addAction(role);
+            this->menu_roles->addAction(role);
+            connect(role, &QAction::triggered, this, &PetWindow::set_role);
+        }
+    }
 
-    // 创建 QAction 对象
-    this->bbl = new QAction("芭芭拉", this);
-    bbl->setProperty("role_name", "芭芭拉");
-    connect(bbl, &QAction::triggered, this, &PetWindow::set_role);
-    this->menu_roles->addAction(bbl);
+    this->menu_bgms = this->tray_menu->addMenu("BGM");
+    {
+        this->group2 = new QActionGroup(this);
+        this->group2->setExclusive(true); // 设置为互斥
+        // 指定要打开的文件夹路径
+        QString folderPath = this->base_path + QDir::separator() + this->music_path
+                             + QDir::separator() + QString("背景音乐");
+        // 创建QDir对象
+        QDir dir(folderPath);
+        // 获取目录下所有文件的列表
+        QStringList dirList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+        // 遍历文件列表
+        foreach (const QString &fileName, dirList) {
+            QAction *bgm = new QAction(QString(fileName).replace(".mp3", ""), this);
+            bgm->setProperty("bgm_name", fileName);
+            bgm->setCheckable(true);
+            this->bgms.append(bgm); //append(role);
+            this->group2->addAction(bgm);
+            this->menu_bgms->addAction(bgm);
+            connect(bgm, &QAction::triggered, this, &PetWindow::set_bgm);
+        }
+    }
 
-    this->bcsz = new QAction("八重神子", this);
-    bcsz->setProperty("role_name", "八重神子");
-    connect(bcsz, &QAction::triggered, this, &PetWindow::set_role);
-    this->menu_roles->addAction(bcsz);
-    this->bnt = new QAction("班尼特", this);
-    bnt->setProperty("role_name", "班尼特");
-    connect(bnt, &QAction::triggered, this, &PetWindow::set_role);
-    this->menu_roles->addAction(bnt);
-    this->dan = new QAction("迪奥娜", this);
-    dan->setProperty("role_name", "迪奥娜");
-    connect(dan, &QAction::triggered, this, &PetWindow::set_role);
-    this->menu_roles->addAction(dan);
+    this->menu_voice = this->tray_menu->addMenu("声音");
+    {
+        this->actionPlayBackgroundMusic = menu_voice->addAction("背景音乐");
+        this->actionPlayBackgroundMusic->setCheckable(true);
+        this->actionPlayRoleVoice = menu_voice->addAction("角色语音");
+        this->actionPlayRoleVoice->setCheckable(true);
+        this->actionStopAll = menu_voice->addAction("关闭所有");
+        this->actionStopAll->setCheckable(true);
 
-    // this->actionPlayMontdidor = menu_voice->addAction("播放蒙德");
-    // this->actionPlayLiyue = menu_voice->addAction("播放璃月");
-    // this->actionPlayInazuma = menu_voice->addAction("播放稻妻");
-    // this->actionPlayRoleVoice = menu_voice->addAction("角色语音");
-    // this->actionStopAll = menu_voice->addAction("关闭所有音乐");
-
-    // 创建音乐菜单相关的QAction对象，并设置为可勾选
-    this->actionPlayMontdidor = menu_voice->addAction("播放蒙德");
-    this->actionPlayMontdidor->setCheckable(true);
-    this->actionPlayLiyue = menu_voice->addAction("播放璃月");
-    this->actionPlayLiyue->setCheckable(true);
-    this->actionPlayInazuma = menu_voice->addAction("播放稻妻");
-    this->actionPlayInazuma->setCheckable(true);
-    this->actionPlayRoleVoice = menu_voice->addAction("角色语音");
-    this->actionPlayRoleVoice->setCheckable(true);
-
-    this->actionStopAll = menu_voice->addAction("关闭所有音乐");
-    this->actionStopAll->setCheckable(true);
-
-    connect(actionPlayMontdidor, &QAction::triggered, this, &PetWindow::onPlayMontdidor);
-    connect(actionPlayLiyue, &QAction::triggered, this, &PetWindow::onPlayLiyue);
-    connect(actionPlayInazuma, &QAction::triggered, this, &PetWindow::onPlayInazuma);
-    connect(actionPlayRoleVoice, &QAction::triggered, this, &PetWindow::onRoleVoice);
-    connect(actionStopAll, &QAction::triggered, this, &PetWindow::onStopAllVocie);
-
+        connect(actionPlayBackgroundMusic,
+                &QAction::triggered,
+                this,
+                &PetWindow::onPlayBackgroundMusic);
+        connect(actionPlayRoleVoice, &QAction::triggered, this, &PetWindow::onPlayRoleVoice);
+        connect(actionStopAll, &QAction::triggered, this, &PetWindow::onStopAllVocie);
+    }
     this->showAction = tray_menu->addAction("显示");
     this->quitAction = tray_menu->addAction("退出");
     connect(showAction, &QAction::triggered, this, &PetWindow::onShowTriggered);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
-
+    this->roles.at(0)->setChecked(true);
+    this->bgms.at(0)->setChecked(true);
     this->actionPlayRoleVoice->setChecked(true);
     this->greeting();
 }
@@ -220,37 +256,15 @@ void PetWindow::init_window()
     this->resize(static_cast<int>(this->scale * this->wt), static_cast<int>(this->scale * this->wt));
     // 创建一个QLabel对象，用于在窗口中显示图像
     this->role_figure = new QLabel(this);
-
-    // 设置QLabel对象，使其内容能够缩放以适应标签的大小
     this->role_figure->setScaledContents(true);
-
-    // 将创建的QLabel设置为当前窗口的中心部件
     this->setCentralWidget(this->role_figure);
-
-    // 根据当前索引从图像列表中获取图像文件路径，并创建一个QPixmap对象
     role_pixmap = QPixmap(this->image_list.at(this->role_figure_index).filePath());
-
-    // 对QPixmap对象进行缩放，保持长宽比，并使用平滑缩放转换
-    // 'scale'变量用于确定缩放比例，'wt'变量作为基准宽度
     role_pixmap.scaled(static_cast<int>(this->scale * this->wt),
                        static_cast<int>(this->scale * this->wt),
                        Qt::KeepAspectRatio,
                        Qt::SmoothTransformation);
-
-    // 这一行被注释掉了，它用于调整窗口大小以适应缩放后的图像尺寸
-    // 如果您想在不调整窗口大小时显示图像，您可以取消注释这行
-    // this->resize(this->role_pixmap->size());
-
-    // 为窗口设置掩膜，掩膜颜色为黑色，这可能会隐藏与掩膜颜色相同的像素
-    // 注意：这种方法可能不适用于所有情况，具体效果取决于图像内容和掩膜的使用方式
-    // 由于您不希望调整窗口大小，您可能需要重新考虑是否使用掩膜
-    // this->setMask(this->role_pixmap->createMaskFromColor(QColor(0, 0, 0)));
-
-    // 将处理后的QPixmap设置到role_figure标签上，这样图像就会显示在标签上
     this->role_figure->setPixmap(this->role_pixmap);
-
     this->setAutoFillBackground(true); // 设置窗口背景透明
-    // 这一行也被注释掉了，它用于设置窗口为半透明背景，但同样您没有启用它
     this->setAttribute(Qt::WA_TranslucentBackground, true);
 }
 
@@ -290,53 +304,52 @@ void PetWindow::playBackgroundMusic(const QString &musicName)
 {
     this->isPlayAudio = true;
     this->isPlayBackgroundAudio = true;
-    this->bg_music = musicName;
+    this->bgm_name = musicName;
     QString musicFilePath = this->base_path + QDir::separator() + this->music_path
-                            + QDir::separator() + this->bg_music + QDir::separator()
-                            + "background.mp3";
+                            + QDir::separator() + "背景音乐" + QDir::separator() + this->bgm_name;
     this->backgroundMusicPlayer->setSource(QUrl::fromLocalFile(musicFilePath));
     this->backgroundMusicPlayer->setProperty("Volume", 100);
     this->backgroundMusicPlayer->loops();
     this->backgroundMusicPlayer->play();
 }
 
-void PetWindow::onPlayMontdidor(bool checked)
-{
-    if (checked) {
-        this->actionStopAll->setChecked(false);
-        this->actionPlayLiyue->setChecked(false);
-        this->actionPlayInazuma->setChecked(false);
-        this->playBackgroundMusic("蒙德");
-    } else {
-        this->isPlayBackgroundAudio = false;
-        this->backgroundMusicPlayer->stop();
-    }
-}
-void PetWindow::onPlayLiyue(bool checked)
-{
-    if (checked) {
-        this->actionStopAll->setChecked(false);
-        this->actionPlayMontdidor->setChecked(false);
-        this->actionPlayInazuma->setChecked(false);
-        this->playBackgroundMusic("璃月");
-    } else {
-        this->isPlayBackgroundAudio = false;
-        this->backgroundMusicPlayer->stop();
-    }
-}
-void PetWindow::onPlayInazuma(bool checked)
-{
-    if (checked) {
-        this->actionStopAll->setChecked(false);
-        this->actionPlayMontdidor->setChecked(false);
-        this->actionPlayLiyue->setChecked(false);
-        this->playBackgroundMusic("稻妻");
-    } else {
-        this->isPlayBackgroundAudio = false;
-        this->backgroundMusicPlayer->stop();
-    }
-}
-void PetWindow::onRoleVoice(bool checked)
+// void PetWindow::onPlayMontdidor(bool checked)
+// {
+//     if (checked) {
+//         this->actionStopAll->setChecked(false);
+//         this->actionPlayLiyue->setChecked(false);
+//         this->actionPlayInazuma->setChecked(false);
+//         this->playBackgroundMusic("蒙德");
+//     } else {
+//         this->isPlayBackgroundAudio = false;
+//         this->backgroundMusicPlayer->stop();
+//     }
+// }
+// void PetWindow::onPlayLiyue(bool checked)
+// {
+//     if (checked) {
+//         this->actionStopAll->setChecked(false);
+//         this->actionPlayMontdidor->setChecked(false);
+//         this->actionPlayInazuma->setChecked(false);
+//         this->playBackgroundMusic("璃月");
+//     } else {
+//         this->isPlayBackgroundAudio = false;
+//         this->backgroundMusicPlayer->stop();
+//     }
+// }
+// void PetWindow::onPlayInazuma(bool checked)
+// {
+//     if (checked) {
+//         this->actionStopAll->setChecked(false);
+//         this->actionPlayMontdidor->setChecked(false);
+//         this->actionPlayLiyue->setChecked(false);
+//         this->playBackgroundMusic("稻妻");
+//     } else {
+//         this->isPlayBackgroundAudio = false;
+//         this->backgroundMusicPlayer->stop();
+//     }
+// }
+void PetWindow::onPlayRoleVoice(bool checked)
 {
     if (checked) {
         this->actionStopAll->setChecked(false);
@@ -348,14 +361,27 @@ void PetWindow::onRoleVoice(bool checked)
         this->roleVoicePlayer->stop();
     }
 }
+void PetWindow::onPlayBackgroundMusic(bool checked)
+{
+    if (checked) {
+        this->actionStopAll->setChecked(false);
+        this->isPlayBackgroundAudio = true;
+        this->isPlayAudio = true;
+        this->playBackgroundMusic(this->bgm_name);
+    } else {
+        this->isPlayBackgroundAudio = false;
+        this->roleVoicePlayer->stop();
+    }
+}
 
 void PetWindow::onStopAllVocie(bool checked)
 {
     if (checked) {
-        this->actionPlayMontdidor->setChecked(false);
-        this->actionPlayInazuma->setChecked(false);
-        this->actionPlayLiyue->setChecked(false);
+        // this->actionPlayMontdidor->setChecked(false);
+        // this->actionPlayInazuma->setChecked(false);
+        // this->actionPlayLiyue->setChecked(false);
         this->actionPlayRoleVoice->setChecked(false);
+        this->actionPlayBackgroundMusic->setChecked(false);
         // 关闭所有音乐和语音
         this->isPlayBackgroundAudio = false;
         this->isPlayRoleAudio = false;
@@ -421,14 +447,29 @@ void PetWindow::greeting()
         this->roleVoicePlayer->play();
     }
 }
-void PetWindow::set_role()
+void PetWindow::set_role(bool checked)
 {
     // 从 QAction 中检索存储的额外信息
-    QAction *action = qobject_cast<QAction *>(sender());
-    this->role_name = action->property("role_name").toString();
-    this->update_lists();
-    this->greeting();
-    // QMessageBox::information(this, "role_name", this->role_name);
+    if (checked) {
+        QAction *action = qobject_cast<QAction *>(sender());
+        this->role_name = action->property("role_name").toString();
+        this->update_lists();
+        this->greeting();
+        // QMessageBox::information(this, "role_name", this->role_name);
+    }
+}
+
+void PetWindow::set_bgm(bool checked)
+{
+    // 从 QAction 中检索存储的额外信息
+    if (checked) {
+        QAction *action = qobject_cast<QAction *>(sender());
+        this->bgm_name = action->property("bgm_name").toString();
+        // QMessageBox::information(this, "role_name", this->role_name);
+        if (this->isPlayAudio && this->isPlayBackgroundAudio) {
+            this->playBackgroundMusic(this->bgm_name);
+        }
+    }
 }
 void PetWindow::contextMenuEvent(QContextMenuEvent *event)
 {

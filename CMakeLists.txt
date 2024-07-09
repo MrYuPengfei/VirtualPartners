@@ -14,6 +14,13 @@ find_package(Qt6 COMPONENTS Core Widgets Multimedia REQUIRED)
 # 包含 Qt 的头文件目录
 include_directories(${Qt6_INCLUDE_DIRS})
 
+# # 寻找 SQLite3 库
+# find_package(SQLite3 REQUIRED)
+# add_library(sqlite3 sqlite3.c)
+
+# 包含 SQLite3 头文件目录
+include_directories(${SQLite3_INCLUDE_DIRS})
+
 # 定义源文件变量
 set(SOURCE_FILES
     main.cpp
@@ -22,7 +29,7 @@ set(SOURCE_FILES
 
 # 定义头文件变量（如果有额外的头文件）
 set(HEADER_FILES
-    PetWindow.h
+    PetWindow.h config.h
 )
 
 # 启用 Qt 的自动 moc、uic 和 rcc
@@ -40,6 +47,9 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES}
 # 链接 Qt 模块
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Multimedia)
 
+# 链接 SQLite3 库
+# target_link_libraries(MyExecutable ${SQLite3_LIBRARIES})
+
 # 后缀处理，确保资源文件被正确处理
 if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -51,6 +61,12 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>, QT_QML_DEBUG>)
 
 target_link_libraries(VirtualPartners PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+
+
+
+
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
