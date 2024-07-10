@@ -1,28 +1,31 @@
 #ifndef PETWINDOW_H
 #define PETWINDOW_H
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
+#include <QAudioOutput>
 #include <QCursor>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 #include <QFileInfoList>
+#include <QIcon>
+#include <QImage>
 #include <QLabel>
+#include <QList>
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QPoint>
+#include <QRandomGenerator>
+#include <QStyle>
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
-/*
-使用 Qt 的信号和槽机制来处理用户交互和定时器事件。
-使用 Qt 的图形视图框架来创建自定义窗口和动画效果。
-使用 Qt 的多媒体模块来代替 pygame 的音频播放功能。
-使用 Qt 的 QSystemTrayIcon 类来实现系统托盘图标和菜单。
-使用 Qt 的 QSettings 或自定义的配置文件解析来代替 yaml 配置文件的处理。
-*/
 class PetWindow : public QMainWindow
 {
     Q_OBJECT
@@ -34,6 +37,7 @@ private:
     QString base_path;
     QString music_path;
     QString image_path;
+    QString bgm_path;
     QString bgm_name;
     QString role_name;
     QFileInfoList image_list;
@@ -61,6 +65,7 @@ private:
     QAction *talking;
     QAction *hideAction;
     QAction *showAction;
+    QAction *helpAction;
     QAction *quitAction;
     QMenu *tray_menu;
     QMenu *menu_roles;
@@ -104,9 +109,7 @@ private slots:
     void onQuitTriggered();
     void onHideTriggered();
     void onShowTriggered();
-    // void onPlayMontdidor(bool checked);
-    // void onPlayLiyue(bool checked);
-    // void onPlayInazuma(bool checked);
+    void onHelpTriggered();
     void onPlayBackgroundMusic(bool checked);
     void onPlayRoleVoice(bool checked);
     void onStopAllVocie(bool checked);

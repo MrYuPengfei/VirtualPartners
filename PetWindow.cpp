@@ -1,34 +1,11 @@
 #include "PetWindow.h"
-#include <QAction>
-#include <QActionGroup>
-#include <QApplication>
-#include <QAudioOutput>
-#include <QCursor>
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QIcon>
-#include <QImage>
-#include <QLabel>
-#include <QList>
-#include <QMainWindow>
-#include <QMediaPlayer>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QMouseEvent>
-#include <QPixmap>
-#include <QRandomGenerator>
-#include <QStyle>
-#include <QSystemTrayIcon>
-#include <QTimer>
-#include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
 #include "config.h"
 PetWindow::PetWindow()
 {
     this->base_path = QString(DATAPATH);
     this->music_path = QString(MUSIC_PATH);
     this->image_path = QString(PNG_PATH);
+    this->bgm_path = QString(BGM_PATH);
     this->bgm_name = QString(BACKGROUND_MUSIC);
     this->role_name = QString(ROLE_NAME);
     this->roles = {};
@@ -115,14 +92,10 @@ PetWindow::~PetWindow()
     delete talking;
     delete hideAction;
     delete showAction;
+    delete helpAction;
     delete quitAction;
-    // delete actionPlayMontdidor;
-    // delete actionPlayLiyue;
-    // delete actionPlayInazuma;
     delete actionPlayRoleVoice;
     delete actionStopAll;
-
-    // 删除角色图片标签
     delete role_figure;
 }
 void PetWindow::init_tray()
@@ -166,8 +139,7 @@ void PetWindow::init_tray()
         this->group2 = new QActionGroup(this);
         this->group2->setExclusive(true); // 设置为互斥
         // 指定要打开的文件夹路径
-        QString folderPath = this->base_path + QDir::separator() + this->music_path
-                             + QDir::separator() + QString("背景音乐");
+        QString folderPath = this->base_path + QDir::separator() + this->bgm_path;
         // 创建QDir对象
         QDir dir(folderPath);
         // 获取目录下所有文件的列表
@@ -201,9 +173,12 @@ void PetWindow::init_tray()
         connect(actionStopAll, &QAction::triggered, this, &PetWindow::onStopAllVocie);
     }
     this->showAction = tray_menu->addAction("显示");
+    this->helpAction = tray_menu->addAction("帮助文档");
+    connect(helpAction, &QAction::triggered, this, &PetWindow::onHelpTriggered);
     this->quitAction = tray_menu->addAction("退出");
     connect(showAction, &QAction::triggered, this, &PetWindow::onShowTriggered);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
     this->roles.at(0)->setChecked(true);
     this->bgms.at(0)->setChecked(true);
     this->actionPlayRoleVoice->setChecked(true);
@@ -287,17 +262,7 @@ void PetWindow::updateAnimation()
 
     // 更新 QLabel 的 QPixmap，而不是创建一个新的 QLabel
     this->role_figure->setPixmap(scaledPixmap);
-
-    // 如果您希望窗口背景透明，使用以下属性
     this->setAttribute(Qt::WA_TranslucentBackground, true);
-
-    // 不要再设置掩膜，除非您有特定的理由需要它
-    // 如果您希望窗口具有透明背景，请确保不要设置掩膜
-    // this->setMask(this->role_pixmap.createMaskFromColor(QColor(0, 0, 0)));
-
-    // 根据需要调整窗口大小，允许用户调整窗口大小查看不同部分的图像
-    // 如果您希望窗口大小与图像大小一致，可以取消注释以下行
-    // this->resize(scaledPixmap.size());
 }
 
 void PetWindow::playBackgroundMusic(const QString &musicName)
@@ -305,50 +270,14 @@ void PetWindow::playBackgroundMusic(const QString &musicName)
     this->isPlayAudio = true;
     this->isPlayBackgroundAudio = true;
     this->bgm_name = musicName;
-    QString musicFilePath = this->base_path + QDir::separator() + this->music_path
-                            + QDir::separator() + "背景音乐" + QDir::separator() + this->bgm_name;
+    QString musicFilePath = this->base_path + QDir::separator() + this->bgm_path + QDir::separator()
+                            + this->bgm_name;
     this->backgroundMusicPlayer->setSource(QUrl::fromLocalFile(musicFilePath));
     this->backgroundMusicPlayer->setProperty("Volume", 100);
     this->backgroundMusicPlayer->loops();
     this->backgroundMusicPlayer->play();
 }
 
-// void PetWindow::onPlayMontdidor(bool checked)
-// {
-//     if (checked) {
-//         this->actionStopAll->setChecked(false);
-//         this->actionPlayLiyue->setChecked(false);
-//         this->actionPlayInazuma->setChecked(false);
-//         this->playBackgroundMusic("蒙德");
-//     } else {
-//         this->isPlayBackgroundAudio = false;
-//         this->backgroundMusicPlayer->stop();
-//     }
-// }
-// void PetWindow::onPlayLiyue(bool checked)
-// {
-//     if (checked) {
-//         this->actionStopAll->setChecked(false);
-//         this->actionPlayMontdidor->setChecked(false);
-//         this->actionPlayInazuma->setChecked(false);
-//         this->playBackgroundMusic("璃月");
-//     } else {
-//         this->isPlayBackgroundAudio = false;
-//         this->backgroundMusicPlayer->stop();
-//     }
-// }
-// void PetWindow::onPlayInazuma(bool checked)
-// {
-//     if (checked) {
-//         this->actionStopAll->setChecked(false);
-//         this->actionPlayMontdidor->setChecked(false);
-//         this->actionPlayLiyue->setChecked(false);
-//         this->playBackgroundMusic("稻妻");
-//     } else {
-//         this->isPlayBackgroundAudio = false;
-//         this->backgroundMusicPlayer->stop();
-//     }
-// }
 void PetWindow::onPlayRoleVoice(bool checked)
 {
     if (checked) {
@@ -377,9 +306,6 @@ void PetWindow::onPlayBackgroundMusic(bool checked)
 void PetWindow::onStopAllVocie(bool checked)
 {
     if (checked) {
-        // this->actionPlayMontdidor->setChecked(false);
-        // this->actionPlayInazuma->setChecked(false);
-        // this->actionPlayLiyue->setChecked(false);
         this->actionPlayRoleVoice->setChecked(false);
         this->actionPlayBackgroundMusic->setChecked(false);
         // 关闭所有音乐和语音
@@ -427,6 +353,11 @@ void PetWindow::onShowTriggered()
 {
     this->setWindowOpacity(1.0);
 }
+
+void PetWindow::onHelpTriggered()
+{
+    QMessageBox::about(this, "帮助文档", HELP_DOCUMENT);
+}
 void PetWindow::greeting()
 {
     if (this->isPlayRoleAudio) {
@@ -441,10 +372,12 @@ void PetWindow::greeting()
         } else {
             filename = "晚安.mp3"; // 使用空字符串表示没有问候语
         }
-        this->roleVoicePlayer->setSource(this->base_path + QDir::separator() + this->music_path
-                                         + QDir::separator() + this->role_name + QDir::separator()
-                                         + filename);
-        this->roleVoicePlayer->play();
+        QString file = this->base_path + QDir::separator() + this->music_path + QDir::separator()
+                       + this->role_name + QDir::separator() + filename;
+        if (QFile::exists(file)) {
+            this->roleVoicePlayer->setSource(file);
+            this->roleVoicePlayer->play();
+        }
     }
 }
 void PetWindow::set_role(bool checked)

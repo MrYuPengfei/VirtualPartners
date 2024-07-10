@@ -1,7 +1,7 @@
 [Setup]
 ; 应用程序的名称和版本
 AppName=VirtualPartners
-AppVersion=1.1
+AppVersion=1.2
 
 ; 安装程序的输出文件名
 OutputDir=./inno_build
