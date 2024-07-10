@@ -11,7 +11,7 @@ const QString ICON_PATH = "data/icon256.ico";
 const QString TOOL_TIP = "原来你也玩原神";
 const QString HELP_DOCUMENT = R"(
 如需添加角色和背景音乐，直接在安装目录的data文件夹下导入新的文件即可。
-您可以通过邮件联系程序开发人员于鹏飞。
+如需支持，请联系程序开发者:于鹏飞，
  mr_yupengfei@foxmail.com
 )";
 #endif // CONFIG_H

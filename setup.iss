@@ -1,7 +1,7 @@
 [Setup]
 ; 应用程序的名称和版本
 AppName=VirtualPartners
-AppVersion=1.2
+AppVersion=V1.3
 
 ; 安装程序的输出文件名
 OutputDir=./inno_build
@@ -11,7 +11,7 @@ SetupIconFile=data\icon256.ico
 WizardImageFile=data\icon256.bmp
 WizardSmallImageFile=data\icon256.bmp
 AppPublisher=于鹏飞
-AppPublisherURL=https://gitee.com/yupengfei1074064684/yuanshen-desktoppet/tree/master
+AppPublisherURL=https://gitee.com/yupengfei1074064684/virtual-partners4-pc.git
 
 ; 其他设置...
 DefaultDirName={commonpf}\VirtualPartners
