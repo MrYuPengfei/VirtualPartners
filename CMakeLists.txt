@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+# find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 # 查找 Qt
 find_package(Qt6 COMPONENTS Core Widgets Multimedia REQUIRED)
 
@@ -64,13 +64,6 @@ target_link_libraries(VirtualPartners PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 
 
-
-
-
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
   set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.VirtualPartners)
 endif()
@@ -82,14 +75,40 @@ set_target_properties(VirtualPartners PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-include(GNUInstallDirs)
-install(TARGETS VirtualPartners
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+# include(GNUInstallDirs)
+# install(TARGETS VirtualPartners
+#     BUNDLE DESTINATION .
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+# )
+
+# if)
+# if(QT_VERSION_MAJOR EQUAL 6)
+#     qt_finalize_executable(VirtualPartners)
+# endif()
+
+# endif()
 
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(VirtualPartners)
+# 如果是 Android 平台，添加 Android 特定的源文件和库
+if(ANDROID)
+    # 添加 Android 特定的源文件
+    # list(APPEND SOURCE_FILES
+    #     android_specific_file.cpp
+    # )
+
+    # 链接 Android 特定的库
+    find_library(LOG_LIB log)
+    find_library(ANDROID_LIB android)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LOG_LIB} ${ANDROID_LIB})
+
+    # 设置应用的包名和版本信息
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                # ANDROID_PACKAGE_NAME "com.example.virtualpartners"
+        ANDROID_PACKAGE_NAME "virtualpartners"
+ #        ANDROID_VERSION_CODE 1
+   #      ANDROID_VERSION_NAME "0.1"
+    )
 endif()
+
+# 其他平台的设置...
