@@ -7,6 +7,7 @@
 #include <QCursor>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFileInfoList>
 #include <QIcon>
@@ -24,7 +25,11 @@
 #include <QRandomGenerator>
 #include <QStyle>
 #include <QSystemTrayIcon>
+#include <QTextDocument>
+#include <QTextEdit>
+#include <QTextStream>
 #include <QTimer>
+#include <QVBoxLayout>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
 class PetWindow : public QMainWindow
 {
@@ -66,7 +71,7 @@ private:
     QAction *hideAction;
     QAction *showAction;
     QAction *helpAction;
-    QAction *showVersionMarkdown;
+    QAction *showVersionAction;
     QAction *quitAction;
     QMenu *tray_menu;
     QMenu *menu_roles;
@@ -90,6 +95,7 @@ private:
     QAction *actionPlayRoleVoice;
     QAction *actionPlayBackgroundMusic; // = menu_voice->addAction("角色语音");
     QAction *actionStopAll;       //= menu_voice->addAction("关闭所有音乐");
+                                  // QTextEdit *textEdit;
 
 private:
     void adjustWindowSize();
@@ -102,7 +108,6 @@ private slots:
     void set_bgm(bool checked);
     void set_role(bool checked);
     void updateAnimation();
-private slots:
     void onKnowTriggered();
     void onTalkTriggered();
     void onQuitTriggered();

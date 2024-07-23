@@ -28,7 +28,8 @@ PetWindow::PetWindow()
     this->roleVoicePlayer->setAudioOutput(audioOutput2);       //设置音频输出
     this->backgroundMusicPlayer->setProperty("Volume", 100);
     this->roleVoicePlayer->setProperty("Volume", 100);
-
+    // this->textEdit = new QTextEdit(this);
+    // this->textEdit->setReadOnly(true);
     this->init_tray();
     this->init_window();
 
@@ -173,15 +174,13 @@ void PetWindow::init_tray()
         connect(actionStopAll, &QAction::triggered, this, &PetWindow::onStopAllVocie);
     }
     this->showAction = tray_menu->addAction("显示");
-
     connect(showAction, &QAction::triggered, this, &PetWindow::onShowTriggered);
     this->menu_markdown = this->tray_menu->addMenu("帮助文档");
     {
         this->helpAction = this->menu_markdown->addAction("程序说明");
-
         connect(helpAction, &QAction::triggered, this, &PetWindow::onHelpTriggered);
-        this->showVersionMarkdown = this->menu_markdown->addAction("版本信息");
-        connect(showAction, &QAction::triggered, this, &PetWindow::showVersionMarkdown);
+        this->showVersionAction = this->menu_markdown->addAction("版本信息");
+        connect(showVersionAction, &QAction::triggered, this, &PetWindow::onShowVersionMarkdown);
     }
 
     this->quitAction = tray_menu->addAction("退出");
@@ -364,8 +363,32 @@ void PetWindow::onShowTriggered()
 
 void PetWindow::onHelpTriggered()
 {
-    QMessageBox::about(this, "帮助文档", HELP_DOCUMENT);
+    QString filePath = HELP_DOCUMENT; // 假设VERSION.md文件位于项目目录中
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString markdownContent = in.readAll();
+        file.close();
+        QMessageBox::about(this, "程序说明", markdownContent);
+    } else {
+        QMessageBox::warning(this, "Error", "Cannot open file: " + filePath);
+    }
 }
+
+void PetWindow::onShowVersionMarkdown()
+{
+    QString filePath = VERSION_DOCUMENT; // 假设VERSION.md文件位于项目目录中
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString markdownContent = in.readAll();
+        file.close();
+        QMessageBox::about(this, "版本文档", markdownContent);
+    } else {
+        QMessageBox::warning(this, "Error", "Cannot open file: " + filePath);
+    }
+}
+
 void PetWindow::greeting()
 {
     if (this->isPlayRoleAudio) {

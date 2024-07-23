@@ -43,7 +43,8 @@ set(CMAKE_AUTORCC ON)
 # add_executable(${PROJECT_NAME} ${MY_RESOURCE_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES})
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES}
-    VERSION.md)
+    VERSION.md
+    HELP.md)
 
 # 链接 Qt 模块
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Multimedia)
