@@ -66,11 +66,13 @@ private:
     QAction *hideAction;
     QAction *showAction;
     QAction *helpAction;
+    QAction *showVersionMarkdown;
     QAction *quitAction;
     QMenu *tray_menu;
     QMenu *menu_roles;
     QMenu *menu_voice;
     QMenu *menu_bgms;
+    QMenu *menu_markdown;
     QLabel *role_figure;
     QPixmap role_pixmap;
     qsizetype role_figure_index = 0;
@@ -85,9 +87,6 @@ private:
     QList<QAction *> bgms;
     QActionGroup *group1;
     QActionGroup *group2;
-    // QAction *actionPlayMontdidor; //menu_voice->addAction("播放蒙德");
-    // QAction *actionPlayLiyue;     //= menu_voice->addAction("播放璃月");
-    // QAction *actionPlayInazuma;   //= menu_voice->addAction("播放稻妻");
     QAction *actionPlayRoleVoice;
     QAction *actionPlayBackgroundMusic; // = menu_voice->addAction("角色语音");
     QAction *actionStopAll;       //= menu_voice->addAction("关闭所有音乐");
@@ -113,6 +112,7 @@ private slots:
     void onPlayBackgroundMusic(bool checked);
     void onPlayRoleVoice(bool checked);
     void onStopAllVocie(bool checked);
+    void onShowVersionMarkdown();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override; //重写上下文菜单

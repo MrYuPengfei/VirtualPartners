@@ -173,10 +173,18 @@ void PetWindow::init_tray()
         connect(actionStopAll, &QAction::triggered, this, &PetWindow::onStopAllVocie);
     }
     this->showAction = tray_menu->addAction("显示");
-    this->helpAction = tray_menu->addAction("帮助文档");
-    connect(helpAction, &QAction::triggered, this, &PetWindow::onHelpTriggered);
-    this->quitAction = tray_menu->addAction("退出");
+
     connect(showAction, &QAction::triggered, this, &PetWindow::onShowTriggered);
+    this->menu_markdown = this->tray_menu->addMenu("帮助文档");
+    {
+        this->helpAction = this->menu_markdown->addAction("程序说明");
+
+        connect(helpAction, &QAction::triggered, this, &PetWindow::onHelpTriggered);
+        this->showVersionMarkdown = this->menu_markdown->addAction("版本信息");
+        connect(showAction, &QAction::triggered, this, &PetWindow::showVersionMarkdown);
+    }
+
+    this->quitAction = tray_menu->addAction("退出");
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     this->roles.at(0)->setChecked(true);
@@ -375,7 +383,8 @@ void PetWindow::greeting()
         QString file = this->base_path + QDir::separator() + this->music_path + QDir::separator()
                        + this->role_name + QDir::separator() + filename;
         if (QFile::exists(file)) {
-            this->roleVoicePlayer->setSource(file);
+            //QMessageBox::information(this, "role_name", file);
+            this->roleVoicePlayer->setSource(QFileInfo(file).filePath());
             this->roleVoicePlayer->play();
         }
     }
