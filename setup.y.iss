@@ -1,5 +1,5 @@
 #define MyAppName "原神桌面宠物"
-#define MyAppVersion "V1.6"
+#define MyAppVersion "V1.7"
 [Setup]
 ; 应用程序的名称和版本
 ; 安装程序的输出文件名
@@ -27,10 +27,12 @@ Name: "zh_CN"; MessagesFile: "ChineseSimplified.isl"
 
 [Files]
 ; 包含 PyInstaller 打包的应用程序目录
-Source: "build\Desktop_Qt_6_7_2_MSVC2019_64bit-MinSizeRel\VirtualPartners.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build\Desktop_Qt_6_7_2_MSVC2019_64bit-MinSizeRel\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "build\Desktop_Qt_6_7_2_MSVC2019_64bit-Release\VirtualPartners.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\Desktop_Qt_6_7_2_MSVC2019_64bit-Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "data\icon256.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs
+Source: "HELP.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "VERSION.md"; DestDir: "{app}"; Flags: ignoreversion
 //Source: "data.zip"; DestDir: "{tmp}"; Flags: ignoreversion 
 //Source: "unzip.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 //Source: "data.zip"; DestDir: "{tmp}"; Flags: deleteafterinstall
