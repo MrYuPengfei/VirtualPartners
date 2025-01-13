@@ -1,7 +1,69 @@
 #include "PetWindow.h"
+#include "SettingsWindow.h"
 #include "config.h"
+PetWindow::~PetWindow()
+{
+    // 停止所有音乐播放
+    if (backgroundMusicPlayer) {
+        backgroundMusicPlayer->stop();
+        delete backgroundMusicPlayer;
+        backgroundMusicPlayer = nullptr;
+    }
+    if (roleVoicePlayer) {
+        roleVoicePlayer->stop();
+        delete roleVoicePlayer;
+        roleVoicePlayer = nullptr;
+    }
+
+    // 删除音频输出
+    delete audioOutput1;
+    delete audioOutput2;
+
+    // 停止定时器
+    if (timer) {
+        timer->stop();
+        delete timer;
+        timer = nullptr;
+    }
+
+    // 删除托盘图标和菜单
+    if (trayIcon) {
+        trayIcon->hide();
+        delete trayIcon;
+        trayIcon = nullptr;
+    }
+    delete tray_menu;
+    delete menu;
+    // delete menu_roles;
+    // delete menu_voice;
+    for (QAction *role : this->roles) {
+        if (role) {
+            delete role;
+            role = nullptr;
+        }
+    }
+    for (QAction *bgm : this->bgms) {
+        if (bgm) {
+            delete bgm;
+            bgm = nullptr;
+        }
+    }
+
+    // 删除动作
+    // delete knowing;
+    // delete talking;
+    // delete hideAction;
+    // delete showAction;
+    // delete helpAction;
+    // delete quitAction;
+    // delete actionPlayRoleVoice;
+    // delete actionStopAll;
+    // delete role_figure;
+    delete settingsWindow;
+}
 PetWindow::PetWindow()
 {
+    this->settingsWindow = nullptr; // 初始化设置窗口指针
     this->base_path = QString(DATAPATH);
     this->music_path = QString(MUSIC_PATH);
     this->image_path = QString(PNG_PATH);
@@ -40,65 +102,6 @@ PetWindow::PetWindow()
     timer->start(60); // 设置定时器时间间隔
 }
 
-PetWindow::~PetWindow()
-{
-    // 停止所有音乐播放
-    if (backgroundMusicPlayer) {
-        backgroundMusicPlayer->stop();
-        delete backgroundMusicPlayer;
-        backgroundMusicPlayer = nullptr;
-    }
-    if (roleVoicePlayer) {
-        roleVoicePlayer->stop();
-        delete roleVoicePlayer;
-        roleVoicePlayer = nullptr;
-    }
-
-    // 删除音频输出
-    delete audioOutput1;
-    delete audioOutput2;
-
-    // 停止定时器
-    if (timer) {
-        timer->stop();
-        delete timer;
-        timer = nullptr;
-    }
-
-    // 删除托盘图标和菜单
-    if (trayIcon) {
-        trayIcon->hide();
-        delete trayIcon;
-        trayIcon = nullptr;
-    }
-    delete tray_menu;
-    delete menu;
-    delete menu_roles;
-    delete menu_voice;
-    for (QAction *role : this->roles) {
-        if (role) {
-            delete role;
-            role = nullptr;
-        }
-    }
-    for (QAction *bgm : this->bgms) {
-        if (bgm) {
-            delete bgm;
-            bgm = nullptr;
-        }
-    }
-
-    // 删除动作
-    delete knowing;
-    delete talking;
-    delete hideAction;
-    delete showAction;
-    delete helpAction;
-    delete quitAction;
-    delete actionPlayRoleVoice;
-    delete actionStopAll;
-    delete role_figure;
-}
 void PetWindow::init_tray()
 {
     // 初始化系统托盘图标
@@ -183,6 +186,8 @@ void PetWindow::init_tray()
         connect(showVersionAction, &QAction::triggered, this, &PetWindow::onShowVersionMarkdown);
     }
 
+    this->actionSettings = tray_menu->addAction("设置");
+    connect(actionSettings, &QAction::triggered, this, &PetWindow::on_actionSettings_triggered);
     this->quitAction = tray_menu->addAction("退出");
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
@@ -248,6 +253,15 @@ void PetWindow::init_window()
     this->role_figure->setPixmap(this->role_pixmap);
     this->setAutoFillBackground(true); // 设置窗口背景透明
     this->setAttribute(Qt::WA_TranslucentBackground, true);
+    //this->settingsWindow->hide();
+}
+void PetWindow::on_actionSettings_triggered()
+{
+    // QMessageBox::information(this, "了解", "new SettingsWindow(this)");
+    if (!settingsWindow) {
+        settingsWindow = new SettingsWindow(this);
+    }
+    settingsWindow->show(); // 显示非模态设置窗口
 }
 
 void PetWindow::updateAnimation()

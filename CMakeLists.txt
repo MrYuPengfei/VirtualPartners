@@ -1,116 +1,54 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.19)
+project(VirtualPartners VERSION 1.8 LANGUAGES CXX)
+# 查找Qt6及其组件
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia LinguistTools)
+# 标准项目设置
+qt_standard_project_setup()
 
-project(VirtualPartners VERSION 0.1 LANGUAGES CXX)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-# find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
-# 查找 Qt
-find_package(Qt6 COMPONENTS Core Widgets Multimedia REQUIRED)
-
-# 包含 Qt 的头文件目录
-include_directories(${Qt6_INCLUDE_DIRS})
-
-# # 寻找 SQLite3 库
-# find_package(SQLite3 REQUIRED)
-# add_library(sqlite3 sqlite3.c)
-
-# 包含 SQLite3 头文件目录
-include_directories(${SQLite3_INCLUDE_DIRS})
-
-# 定义源文件变量
-set(SOURCE_FILES
+qt_add_executable(${PROJECT_NAME}
+    WIN32 MACOSX_BUNDLE
     main.cpp
     PetWindow.cpp
+    SettingsWindow.cpp
+    PetWindow.h
+    SettingsWindow.h
+    config.h
 )
 
-# 定义头文件变量（如果有额外的头文件）
-set(HEADER_FILES
-    PetWindow.h config.h
+# 链接Qt库
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::Multimedia
 )
 
-# 启用 Qt 的自动 moc、uic 和 rcc
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
-# 定义应用程序
-# qt_add_resources(MY_RESOURCE_FILES PetWindow.qrc)
+include(GNUInstallDirs)
 
-# add_executable(${PROJECT_NAME} ${MY_RESOURCE_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES})
+install(TARGETS ${PROJECT_NAME}
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+# Linux特定的设置
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # 查找Vulkan和XKB
+    find_package(Vulkan REQUIRED)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(XKBCOMMON REQUIRED xkbcommon)
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES}
-    VERSION.md
-    HELP.md)
+    # 链接Vulkan和XKB库
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} ${XKBCOMMON_LIBRARIES})
 
-# 链接 Qt 模块
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Multimedia)
+    # 包含Vulkan和XKB的头文件目录
+    target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS} ${XKBCOMMON_INCLUDE_DIRS})
+endif()
 
-# 链接 SQLite3 库
-# target_link_libraries(MyExecutable ${SQLite3_LIBRARIES})
-
-# 后缀处理，确保资源文件被正确处理
-if(WIN32)
+# Windows特定的设置（如果需要）
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        WIN32_EXECUTABLE TRUE
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"  # 或者你希望的目录
     )
 endif()
-
-# 包含 Qt 的模块化工具集
-target_compile_definitions(${PROJECT_NAME} PRIVATE $<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>, QT_QML_DEBUG>)
-
-target_link_libraries(VirtualPartners PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
-
-
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.VirtualPartners)
-endif()
-set_target_properties(VirtualPartners PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
-# include(GNUInstallDirs)
-# install(TARGETS VirtualPartners
-#     BUNDLE DESTINATION .
-#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-# )
-
-# if)
-# if(QT_VERSION_MAJOR EQUAL 6)
-#     qt_finalize_executable(VirtualPartners)
-# endif()
-
-# endif()
-
-
-# 如果是 Android 平台，添加 Android 特定的源文件和库
-if(ANDROID)
-    # 添加 Android 特定的源文件
-    # list(APPEND SOURCE_FILES
-    #     android_specific_file.cpp
-    # )
-
-    # 链接 Android 特定的库
-    find_library(LOG_LIB log)
-    find_library(ANDROID_LIB android)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${LOG_LIB} ${ANDROID_LIB})
-
-    # 设置应用的包名和版本信息
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-                # ANDROID_PACKAGE_NAME "com.example.virtualpartners"
-        ANDROID_PACKAGE_NAME "virtualpartners"
- #        ANDROID_VERSION_CODE 1
-   #      ANDROID_VERSION_NAME "0.1"
-    )
-endif()
-
-# 其他平台的设置...
