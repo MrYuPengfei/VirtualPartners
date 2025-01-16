@@ -30,6 +30,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QWindow>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
 #include "SettingsWindow.h"
 class PetWindow : public QMainWindow

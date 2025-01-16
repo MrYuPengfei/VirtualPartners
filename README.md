@@ -1,7 +1,7 @@
 # VirtualPartners
 
 ## 介绍
-VirtualPartners是一款基于C++ Qt 6.7开发的桌面电子宠物软件。
+VirtualPartners是一款基于C++ Qt 6开发的桌面电子宠物软件。
 ### Windows
 #### 使用方法
 点击安装包安装到Windows10/11上后，请点击任务栏设置，其他系统托盘图标，将VirtualPartners.exe设置为开启状态。

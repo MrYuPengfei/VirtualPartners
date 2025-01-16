@@ -497,10 +497,9 @@ void PetWindow::keyPressEvent(QKeyEvent *event)
 void PetWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        lastMousePosition = event->globalPosition().toPoint() - this->pos();
-        isDragging = true;
-        setCursor(Qt::ClosedHandCursor);
+        windowHandle()->startSystemMove();
     }
+    // ‌Qt中的startSystemMove()函数用于在鼠标按下并拖动时实现窗口的拖动‌。这个函数不需要计算坐标或使用系统API，因此可以跨平台使用，并且性能较好，不会出现光标和窗口脱离的情况。
 }
 
 void PetWindow::mouseMoveEvent(QMouseEvent *event)
