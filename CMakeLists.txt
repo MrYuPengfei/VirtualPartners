@@ -9,9 +9,9 @@ qt_add_executable(${PROJECT_NAME}
     WIN32 MACOSX_BUNDLE
     main.cpp
     PetWindow.cpp
-    SettingsWindow.cpp
+    # SettingsWindow.cpp
     PetWindow.h
-    SettingsWindow.h
+    # SettingsWindow.h
     config.h
 )
 

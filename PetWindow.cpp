@@ -1,5 +1,5 @@
 #include "PetWindow.h"
-#include "SettingsWindow.h"
+// #include "SettingsWindow.h"
 #include "config.h"
 PetWindow::~PetWindow()
 {
@@ -59,11 +59,11 @@ PetWindow::~PetWindow()
     // delete actionPlayRoleVoice;
     // delete actionStopAll;
     // delete role_figure;
-    delete settingsWindow;
+    // delete settingsWindow;
 }
 PetWindow::PetWindow()
 {
-    this->settingsWindow = nullptr; // 初始化设置窗口指针
+    // this->settingsWindow = nullptr; // 初始化设置窗口指针
     this->base_path = QString(DATAPATH);
     this->music_path = QString(MUSIC_PATH);
     this->image_path = QString(PNG_PATH);
@@ -186,8 +186,8 @@ void PetWindow::init_tray()
         connect(showVersionAction, &QAction::triggered, this, &PetWindow::onShowVersionMarkdown);
     }
 
-    this->actionSettings = tray_menu->addAction("设置");
-    connect(actionSettings, &QAction::triggered, this, &PetWindow::on_actionSettings_triggered);
+    // this->actionSettings = tray_menu->addAction("设置");
+    // connect(actionSettings, &QAction::triggered, this, &PetWindow::on_actionSettings_triggered);
     this->quitAction = tray_menu->addAction("退出");
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
@@ -255,14 +255,14 @@ void PetWindow::init_window()
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     //this->settingsWindow->hide();
 }
-void PetWindow::on_actionSettings_triggered()
-{
-    // QMessageBox::information(this, "了解", "new SettingsWindow(this)");
-    if (!settingsWindow) {
-        settingsWindow = new SettingsWindow(this);
-    }
-    settingsWindow->show(); // 显示非模态设置窗口
-}
+// void PetWindow::on_actionSettings_triggered()
+// {
+//     // QMessageBox::information(this, "了解", "new SettingsWindow(this)");
+//     if (!settingsWindow) {
+//         settingsWindow = new SettingsWindow(this);
+//     }
+//     settingsWindow->show(); // 显示非模态设置窗口
+// }
 
 void PetWindow::updateAnimation()
 {

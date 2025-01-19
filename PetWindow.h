@@ -32,7 +32,7 @@
 #include <QVBoxLayout>
 #include <QWindow>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
-#include "SettingsWindow.h"
+// #include "SettingsWindow.h"
 class PetWindow : public QMainWindow
 {
     Q_OBJECT
@@ -41,7 +41,7 @@ public:
     ~PetWindow();
 
 private:
-    SettingsWindow *settingsWindow;
+    // SettingsWindow *settingsWindow;
     QString base_path;
     QString music_path;
     QString image_path;
@@ -130,7 +130,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;            // 重写键盘敲击事件
     // void closeEvent(QCloseEvent *event) override; // 关闭窗口时隐藏而不是退出程序：
 private slots:
-    void on_actionSettings_triggered();
+    // void on_actionSettings_triggered();
 
 private:
     QAction *actionSettings;
