@@ -27,11 +27,11 @@ PetWindow::~PetWindow()
     }
 
     // 删除托盘图标和菜单
-    if (trayIcon) {
-        trayIcon->hide();
-        delete trayIcon;
-        trayIcon = nullptr;
-    }
+    // if (trayIcon) {
+    //     trayIcon->hide();
+    //     delete trayIcon;
+    //     trayIcon = nullptr;
+    // }
     delete tray_menu;
     delete menu;
     // delete menu_roles;

@@ -49,3 +49,4 @@ Ctrl+“-”缩小程序。
 
 ### Linux
 支持Linux，操作过程与Windows类似。
+#### 

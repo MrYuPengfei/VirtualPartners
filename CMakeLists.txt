@@ -24,13 +24,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 
-include(GNUInstallDirs)
 
-install(TARGETS ${PROJECT_NAME}
-    BUNDLE  DESTINATION .
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
 # Linux特定的设置
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # 查找Vulkan和XKB
@@ -43,6 +37,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     # 包含Vulkan和XKB的头文件目录
     target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS} ${XKBCOMMON_INCLUDE_DIRS})
+
+    include(GNUInstallDirs)
+
+    install(TARGETS ${PROJECT_NAME}
+        BUNDLE  DESTINATION .
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
 endif()
 
 # Windows特定的设置（如果需要）
