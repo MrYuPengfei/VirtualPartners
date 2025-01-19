@@ -1,4 +1,4 @@
-#define MyAppName "原神桌面伴侣"
+#define MyAppName "原神主题桌面伙伴"
 #define MyAppVersion "V1.8"
 [Setup]
 ; 应用程序的名称和版本
