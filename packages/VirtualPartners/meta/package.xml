@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>原神主题桌面伙伴</DisplayName>
+    <Description>安装</Description>
+    <Version>1.9.0</Version>
+    <ReleaseDate>2025-01-22</ReleaseDate>
+    <Licenses>
+        <License name="LGPLv3 License Agreement" file="LICENSE" />
+    </Licenses>
+    <Default>script</Default>
+    <Script>installscript.qs</Script>
+    <!-- <UserInterfaces>
+        <UserInterface>page.ui</UserInterface>
+    </UserInterfaces> -->
+</Package>

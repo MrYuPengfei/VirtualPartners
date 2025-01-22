@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>原神主题桌面伙伴</Name>
+    <Version>1.9.0</Version>
+    <!-- <Title>维护程序</Title> -->
+    <Publisher>mr_yupengfei@foxmail.com</Publisher>
+    <StartMenuDir>原神主题桌面伙伴</StartMenuDir>
+    <TargetDir>@HomeDir@/VirtualPartners</TargetDir>
+</Installer>
