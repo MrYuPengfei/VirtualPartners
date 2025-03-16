@@ -37,11 +37,11 @@ unix {
 }
 
 # Windows 特定配置
-win32 {
-    # 设置输出目录
-    DESTDIR = $${PWD}/bin/
-    TARGET = $$DESTDIR/$${TARGET}
-    CONFIG(debug, debug|release) {
-        TARGET = $$DESTDIR/$${TARGET}_debug
-    }
-}
+# win32 {
+#     # 设置输出目录
+#     DESTDIR = $${PWD}/bin/
+#     # TARGET = $$DESTDIR/$${TARGET}
+#     # CONFIG(debug, debug|release) {
+#     #     TARGET = $$DESTDIR/$${TARGET}_debug
+#     # }
+# }

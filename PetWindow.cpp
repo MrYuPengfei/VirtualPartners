@@ -245,12 +245,12 @@ void PetWindow::init_window()
     this->role_figure = new QLabel(this);
     this->role_figure->setScaledContents(true);
     this->setCentralWidget(this->role_figure);
-    role_pixmap = QPixmap(this->image_list.at(this->role_figure_index).filePath());
-    role_pixmap.scaled(static_cast<int>(this->scale * this->wt),
-                       static_cast<int>(this->scale * this->wt),
-                       Qt::KeepAspectRatio,
-                       Qt::SmoothTransformation);
-    this->role_figure->setPixmap(this->role_pixmap);
+    // role_pixmap = QPixmap(this->image_list.at(this->role_figure_index).filePath());
+    // role_pixmap.scaled(static_cast<int>(this->scale * this->wt),
+    //                    static_cast<int>(this->scale * this->wt),
+    //                    Qt::KeepAspectRatio,
+    //                    Qt::SmoothTransformation);
+    // this->role_figure->setPixmap(this->role_pixmap);
     this->setAutoFillBackground(true); // 设置窗口背景透明
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     //this->settingsWindow->hide();
@@ -273,13 +273,14 @@ void PetWindow::updateAnimation()
     }
 
     // 加载新的图像并缩放它
-    QPixmap newPixmap(this->image_list.at(this->role_figure_index).filePath());
-    QPixmap scaledPixmap = newPixmap.scaled(static_cast<int>(this->scale * this->wt),
-                                            static_cast<int>(
-                                                this->scale
-                                                * this->ht), // 确保这里使用正确的高度基准 'ht'
-                                            Qt::KeepAspectRatio,
-                                            Qt::SmoothTransformation);
+    // QPixmap newPixmap(this->image_list.at(this->role_figure_index).filePath());
+    QPixmap scaledPixmap = (this->vector_role_pixmap[this->role_figure_index])
+                               .scaled(static_cast<int>(this->scale * this->wt),
+                                       static_cast<int>(
+                                           this->scale
+                                           * this->ht), // 确保这里使用正确的高度基准 'ht'
+                                       Qt::KeepAspectRatio,
+                                       Qt::SmoothTransformation);
 
     // 更新 QLabel 的 QPixmap，而不是创建一个新的 QLabel
     this->role_figure->setPixmap(scaledPixmap);
@@ -460,6 +461,21 @@ void PetWindow::update_lists()
     QDir image_directory(this->base_path + QDir::separator() + this->image_path + QDir::separator()
                          + this->role_name);
     this->image_list = image_directory.entryInfoList(QDir::Files);
+    // 清空之前的 QPixmap 向量
+    this->vector_role_pixmap.clear();
+
+    // 遍历文件信息列表
+    for (const QFileInfo &fileInfo : this->image_list) {
+        // 加载图片到 QPixmap
+        QPixmap pixmap(fileInfo.filePath());
+
+        // 检查图片是否成功加载
+        if (!pixmap.isNull()) {
+            // 将有效的 QPixmap 添加到向量中
+            vector_role_pixmap.append(pixmap);
+        }
+    }
+
     QDir music_directory(this->base_path + QDir::separator() + this->music_path + QDir::separator()
                          + this->role_name);
     QFileInfoList entries = music_directory.entryInfoList(QDir::Files);

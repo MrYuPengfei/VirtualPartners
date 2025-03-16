@@ -30,6 +30,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QVector>
 #include <QWindow>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
 // #include "SettingsWindow.h"
@@ -83,6 +84,7 @@ private:
     QMenu *menu_markdown;
     QLabel *role_figure;
     QPixmap role_pixmap;
+    QVector<QPixmap> vector_role_pixmap;
     qsizetype role_figure_index = 0;
     int screenheight;
     int screenwidth;
