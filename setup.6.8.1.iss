@@ -1,5 +1,6 @@
 #define MyAppName "原神主题桌面伙伴"
-#define MyAppVersion "V1.8"
+#define MyAppVersion "V1.9"
+#define BuildDir "build\Desktop_Qt_6_8_2_MSVC2022_64bit-Release\release"
 [Setup]
 ; 应用程序的名称和版本
 ; 安装程序的输出文件名
@@ -27,8 +28,8 @@ Name: "zh_CN"; MessagesFile: "ChineseSimplified.isl"
 
 [Files]
 ; 包含 PyInstaller 打包的应用程序目录
-Source: "VirtualPartners.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\VirtualPartners.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "data\icon256.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs
 Source: "HELP.md"; DestDir: "{app}"; Flags: ignoreversion

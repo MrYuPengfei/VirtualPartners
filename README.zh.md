@@ -112,6 +112,9 @@ Ctrl+“-”缩小程序。
 使用cd命令在命令行中切换到你的应用程序的Release或Debug目录。
 步骤4：运行windeployqt
 在命令行中输入windeployqt命令，后面跟上你的应用程序的可执行文件名。
+```
+D:\QTProjects\VirtualPartners\build\Desktop_Qt_6_8_2_MSVC2022_64bit-Release\release>windeployqt VirtualPartners.exe
+```
 
 #### inno 6
 

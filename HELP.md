@@ -5,4 +5,7 @@
 5. 音乐素材和图片素材来源于互联网。
 6. 如需支持，请联系程序开发者:于鹏飞，mr_yupengfei@foxmail.com
 7. 本程序基于 C++ Qt6.8 开发，不用于商业用途，采用 LGPLv3 协议。
-8. 程序开源：https://gitee.com/yupengfei1074064684/virtual-partners4-pc.git
+8. 程序开源：
+- gitee：https://gitee.com/yupengfei1074064684/virtual-partners4-pc.git
+- github：https://github.com/MrYuPengfei/VirtualPartners
+9. blog：https://blog.yupengfei.space/blog/detail/2/

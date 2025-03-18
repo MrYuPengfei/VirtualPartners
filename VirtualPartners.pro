@@ -16,7 +16,6 @@ HEADERS += \
 
 # Qt 模块
 QT = core widgets multimedia
-
 # Linux 特定配置
 unix {
     # 查找 Vulkan 和 XKB
