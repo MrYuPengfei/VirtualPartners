@@ -11,6 +11,11 @@ const QString ICON_PATH = "data/icon256.ico";
 const QString TOOL_TIP = "原来你也玩原神";
 const QString HELP_DOCUMENT = "HELP.md";
 const QString VERSION_DOCUMENT = "VERSION.md";
+const QString API_KEY_TXT = "key/api.key.txt";
+const QString ACCESS_KEY_TXT = "key/access.key.txt";
+const QString SECRET_KEY_TXT = "key/secret.key.txt";
+const QString API_URL
+    = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions";
 
 //                               "R"(
 // 如需添加角色和背景音乐，直接在安装目录的data文件夹下导入新的文件即可。

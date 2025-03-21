@@ -114,6 +114,8 @@ private:
     QAction *aiDialogAction;      // 新增动作，用于 AI 对话选项
     QNetworkAccessManager *manager; // 新增成员，用于网络请求
     QString accessToken;            // 新增成员，存储百度 API 的 access_token
+    QNetworkReply *reply;
+
 private:
     void adjustWindowSize();
     void init_window();  //窗口初始化
@@ -132,7 +134,7 @@ private slots:
     void onShowTriggered();
     void onHelpTriggered();
     void onAIDialogTriggered();                        // 新增槽函数，处理 AI 对话选项的点击事件
-    void onNetworkReplyFinished(QNetworkReply *reply); // 新增槽函数，处理网络请求的响应
+    void onNetworkReplyFinished();                     // 新增槽函数，处理网络请求的响应
     void onPlayBackgroundMusic(bool checked);
     void onPlayRoleVoice(bool checked);
     void onStopAllVocie(bool checked);

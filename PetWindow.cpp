@@ -25,17 +25,8 @@ PetWindow::~PetWindow()
         delete timer;
         timer = nullptr;
     }
-
-    // 删除托盘图标和菜单
-    // if (trayIcon) {
-    //     trayIcon->hide();
-    //     delete trayIcon;
-    //     trayIcon = nullptr;
-    // }
     delete tray_menu;
     delete menu;
-    // delete menu_roles;
-    // delete menu_voice;
     for (QAction *role : this->roles) {
         if (role) {
             delete role;
@@ -48,18 +39,6 @@ PetWindow::~PetWindow()
             bgm = nullptr;
         }
     }
-
-    // 删除动作
-    // delete knowing;
-    // delete talking;
-    // delete hideAction;
-    // delete showAction;
-    // delete helpAction;
-    // delete quitAction;
-    // delete actionPlayRoleVoice;
-    // delete actionStopAll;
-    // delete role_figure;
-    // delete settingsWindow;
 }
 PetWindow::PetWindow()
 {
@@ -67,6 +46,7 @@ PetWindow::PetWindow()
     manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, &PetWindow::onNetworkReplyFinished);
 
+    //connect(reply, &QNetworkReply::finished, this, &PetWindow::onNetworkReplyFinished);
     // this->settingsWindow = nullptr; // 初始化设置窗口指针
     this->base_path = QString(DATAPATH);
     this->music_path = QString(MUSIC_PATH);
@@ -540,39 +520,43 @@ void PetWindow::mouseReleaseEvent(QMouseEvent *event)
         unsetCursor();
     }
 }
-
-// void PetWindow::closeEvent(QCloseEvent *event)
-// {
-//     event->ignore(); // 忽略关闭事件
-//     this->hide();    // 隐藏窗口
-// }
 void PetWindow::onAIDialogTriggered()
 {
     bool ok;
     QString input
         = QInputDialog::getText(this, "AI 对话", "请输入你的问题:", QLineEdit::Normal, "", &ok);
-    if (ok && !input.isEmpty()) {
-        QUrl url("https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_bot_4");
-        QNetworkRequest request(url);
+
+    // 读取 API 密钥
+    QFile file(API_KEY_TXT);
+    QString apiKey = "";
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        apiKey = in.readAll();
+        file.close();
+        apiKey = apiKey.trimmed(); // 去除首尾的空白字符
+    } else {
+        qDebug() << "Failed to open file:" << API_KEY_TXT;
+        return;
+    }
+
+    if (!apiKey.isEmpty() && !input.isEmpty()) {
+        // 配置请求参数
+        QUrl apiUrl(API_URL);
+        QNetworkRequest request(apiUrl);
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-        request.setRawHeader("Authorization", ("Bearer " + accessToken).toUtf8());
+        request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
 
-        QJsonObject jsonPayload;
-        QJsonArray messages;
-        QJsonObject userMessage;
-        userMessage["role"] = "user";
-        userMessage["content"] = input;
-        messages.append(userMessage);
-        jsonPayload["messages"] = messages;
+        // 构建请求体
+        QJsonObject requestBody{{"messages",
+                                 QJsonArray{QJsonObject{{"role", "user"}, {"content", input}}}},
+                                {"stream", true}};
 
-        QJsonDocument doc(jsonPayload);
-        QByteArray data = doc.toJson();
-
-        manager->post(request, data);
+        // 发送 POST 请求
+        reply = manager->post(request, QJsonDocument(requestBody).toJson());
     }
 }
 
-void PetWindow::onNetworkReplyFinished(QNetworkReply *reply)
+void PetWindow::onNetworkReplyFinished()
 {
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
@@ -582,9 +566,11 @@ void PetWindow::onNetworkReplyFinished(QNetworkReply *reply)
         if (jsonObj.contains("result")) {
             QString answer = jsonObj["result"].toString();
             QMessageBox::information(this, "AI 回复", answer);
+        } else {
+            QMessageBox::warning(this, "数据错误", "未找到 AI 回复内容！");
         }
     } else {
         QMessageBox::warning(this, "请求出错", "请求出错: " + reply->errorString());
     }
-    reply->deleteLater();
+    reply->deleteLater(); // 确保释放资源
 }
