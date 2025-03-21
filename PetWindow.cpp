@@ -534,34 +534,58 @@ void PetWindow::onAIDialogTriggered()
         apiKey = in.readAll();
         file.close();
         apiKey = apiKey.trimmed(); // 去除首尾的空白字符
-    } else {
-        qDebug() << "Failed to open file:" << API_KEY_TXT;
-        return;
     }
-
-    if (!apiKey.isEmpty() && !input.isEmpty()) {
+    // 读取 APP ID
+    QFile file1(APP_ID_TXT);
+    QString appId = "";
+    if (file1.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file1);
+        appId = in.readAll();
+        file1.close();
+        appId = appId.trimmed(); // 去除首尾的空白字符
+    }
+    if (!appId.isEmpty() && !apiKey.isEmpty() && !input.isEmpty()) {
         // 配置请求参数
         QUrl apiUrl(API_URL);
         QNetworkRequest request(apiUrl);
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        // 允许重定向（对应CURLOPT_FOLLOWLOCATION）
+        request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                             QNetworkRequest::NoLessSafeRedirectPolicy);
+
+        request.setRawHeader("Content-Type", QString("application/json").toUtf8());
+        request.setRawHeader("appid", appId.toUtf8());
         request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
 
         // 构建请求体
-        QJsonObject requestBody{{"messages",
-                                 QJsonArray{QJsonObject{{"role", "user"}, {"content", input}}}},
-                                {"stream", true}};
+        // 构建消息对象
+        QJsonObject message;
+        message["role"] = "user";
+        message["content"] = input;
 
+        // 构建web_search配置
+        QJsonObject webSearchConfig;
+        webSearchConfig["enable"] = false;
+        webSearchConfig["enable_citation"] = false;
+        webSearchConfig["enable_trace"] = false;
+
+        // 组装完整请求体
+        QJsonObject requestBody;
+        requestBody["model"] = API_MODEL;
+        requestBody["messages"] = QJsonArray{message};
+
+        requestBody["web_search"] = webSearchConfig;
         // 发送 POST 请求
         reply = manager->post(request, QJsonDocument(requestBody).toJson());
     }
 }
-
 void PetWindow::onNetworkReplyFinished()
 {
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
         QJsonObject jsonObj = jsonDoc.object();
+        // QString answer = jsonObj["content"].toString();
+        // QMessageBox::information(this, "AI 回复", answer);
 
         if (jsonObj.contains("result")) {
             QString answer = jsonObj["result"].toString();

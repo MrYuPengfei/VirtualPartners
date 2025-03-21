@@ -14,9 +14,9 @@ const QString VERSION_DOCUMENT = "VERSION.md";
 const QString API_KEY_TXT = "key/api.key.txt";
 const QString ACCESS_KEY_TXT = "key/access.key.txt";
 const QString SECRET_KEY_TXT = "key/secret.key.txt";
-const QString API_URL
-    = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions";
-
+const QString APP_ID_TXT = "key/app.id.txt";
+const QString API_URL = "https://qianfan.baidubce.com/v2/chat/completions";
+const QString API_MODEL = "deepseek-r1-distill-qianfan-llama-70b";
 //                               "R"(
 // 如需添加角色和背景音乐，直接在安装目录的data文件夹下导入新的文件即可。
 // 点击安装包安装到Windows11上后，请点击任务栏设置，其他系统托盘图标，将原神桌面宠物设置为开启状态。
