@@ -564,9 +564,9 @@ void PetWindow::onAIDialogTriggered()
 
         // 构建web_search配置
         QJsonObject webSearchConfig;
-        webSearchConfig["enable"] = false;
-        webSearchConfig["enable_citation"] = false;
-        webSearchConfig["enable_trace"] = false;
+        webSearchConfig["enable"] = true;
+        webSearchConfig["enable_citation"] = true;
+        webSearchConfig["enable_trace"] = true;
 
         // 组装完整请求体
         QJsonObject requestBody;
@@ -578,21 +578,63 @@ void PetWindow::onAIDialogTriggered()
         reply = manager->post(request, QJsonDocument(requestBody).toJson());
     }
 }
+
+QString extractContentFromJson(const QJsonObject &rootObj)
+{
+    // 1. 检查choices字段存在性
+    if (!rootObj.contains("choices") || !rootObj["choices"].isArray()) {
+        qWarning() << "Invalid or missing 'choices' field";
+        return QString();
+    }
+
+    // 2. 获取choices数组
+    QJsonArray choicesArray = rootObj["choices"].toArray();
+    if (choicesArray.isEmpty()) {
+        qWarning() << "'choices' array is empty";
+        return QString();
+    }
+
+    // 3. 获取第一个choice元素
+    QJsonValue firstChoice = choicesArray.at(0);
+    if (!firstChoice.isObject()) {
+        qWarning() << "First choice is not an object";
+        return QString();
+    }
+    QJsonObject choiceObj = firstChoice.toObject();
+
+    // 4. 获取message对象
+    if (!choiceObj.contains("message") || !choiceObj["message"].isObject()) {
+        qWarning() << "Invalid or missing 'message' field";
+        return QString();
+    }
+    QJsonObject messageObj = choiceObj["message"].toObject();
+
+    // 5. 提取content字段
+    if (!messageObj.contains("content")) {
+        qWarning() << "Missing 'content' field";
+        return QString();
+    }
+    return messageObj["content"].toString();
+}
+
 void PetWindow::onNetworkReplyFinished()
 {
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
         QJsonObject jsonObj = jsonDoc.object();
-        // QString answer = jsonObj["content"].toString();
-        // QMessageBox::information(this, "AI 回复", answer);
-
-        if (jsonObj.contains("result")) {
-            QString answer = jsonObj["result"].toString();
-            QMessageBox::information(this, "AI 回复", answer);
-        } else {
+        QString answer = extractContentFromJson(jsonObj);
+        if (answer.isEmpty()) {
             QMessageBox::warning(this, "数据错误", "未找到 AI 回复内容！");
+        } else {
+            QMessageBox msgBox(this);
+            msgBox.setWindowTitle("AI 回复");
+            msgBox.setText(answer);
+            msgBox.setIcon(QMessageBox::NoIcon); // 关键设置：禁用图标
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.exec();
         }
+
     } else {
         QMessageBox::warning(this, "请求出错", "请求出错: " + reply->errorString());
     }
