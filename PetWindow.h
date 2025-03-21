@@ -4,15 +4,22 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QAudioOutput>
+#include <QByteArray>
 #include <QCursor>
 #include <QDebug>
+#include <QDialog>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QFileInfoList>
 #include <QIcon>
 #include <QImage>
+#include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QList>
 #include <QMainWindow>
 #include <QMediaPlayer>
@@ -20,6 +27,9 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QPixmap>
 #include <QPoint>
 #include <QRandomGenerator>
@@ -30,6 +40,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QVector>
 #include <QWindow>
 #include <QtMultimedia/QMediaPlayer> // Qt 的多媒体模块用于音频播放
 // #include "SettingsWindow.h"
@@ -83,6 +94,7 @@ private:
     QMenu *menu_markdown;
     QLabel *role_figure;
     QPixmap role_pixmap;
+    QVector<QPixmap> vector_role_pixmap;
     qsizetype role_figure_index = 0;
     int screenheight;
     int screenwidth;
@@ -99,7 +111,9 @@ private:
     QAction *actionPlayBackgroundMusic; // = menu_voice->addAction("角色语音");
     QAction *actionStopAll;       //= menu_voice->addAction("关闭所有音乐");
                                   // QTextEdit *textEdit;
-
+    QAction *aiDialogAction;      // 新增动作，用于 AI 对话选项
+    QNetworkAccessManager *manager; // 新增成员，用于网络请求
+    QString accessToken;            // 新增成员，存储百度 API 的 access_token
 private:
     void adjustWindowSize();
     void init_window();  //窗口初始化
@@ -117,6 +131,8 @@ private slots:
     void onHideTriggered();
     void onShowTriggered();
     void onHelpTriggered();
+    void onAIDialogTriggered();                        // 新增槽函数，处理 AI 对话选项的点击事件
+    void onNetworkReplyFinished(QNetworkReply *reply); // 新增槽函数，处理网络请求的响应
     void onPlayBackgroundMusic(bool checked);
     void onPlayRoleVoice(bool checked);
     void onStopAllVocie(bool checked);

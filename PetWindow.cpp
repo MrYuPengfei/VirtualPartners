@@ -63,6 +63,10 @@ PetWindow::~PetWindow()
 }
 PetWindow::PetWindow()
 {
+    // 初始化网络访问管理器
+    manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished, this, &PetWindow::onNetworkReplyFinished);
+
     // this->settingsWindow = nullptr; // 初始化设置窗口指针
     this->base_path = QString(DATAPATH);
     this->music_path = QString(MUSIC_PATH);
@@ -224,6 +228,7 @@ void PetWindow::init_window()
     // 初始化动作
     knowing = new QAction("了解", this);
     talking = new QAction("闲聊", this);
+    aiDialogAction = new QAction("对话", this);
     hideAction = new QAction("隐藏", this);
     quitAction = new QAction("退出", this);
 
@@ -231,12 +236,14 @@ void PetWindow::init_window()
     this->menu = new QMenu(this);
     this->menu->addAction(knowing);
     this->menu->addAction(talking);
+    this->menu->addAction(aiDialogAction);
     this->menu->addAction(hideAction);
     this->menu->addAction(quitAction);
 
     // 连接信号和槽
     connect(knowing, &QAction::triggered, this, &PetWindow::onKnowTriggered);
     connect(talking, &QAction::triggered, this, &PetWindow::onTalkTriggered);
+    connect(aiDialogAction, &QAction::triggered, this, &PetWindow::onAIDialogTriggered);
     connect(hideAction, &QAction::triggered, this, &PetWindow::onHideTriggered);
     connect(quitAction, &QAction::triggered, this, &PetWindow::onQuitTriggered);
 
@@ -245,12 +252,12 @@ void PetWindow::init_window()
     this->role_figure = new QLabel(this);
     this->role_figure->setScaledContents(true);
     this->setCentralWidget(this->role_figure);
-    role_pixmap = QPixmap(this->image_list.at(this->role_figure_index).filePath());
-    role_pixmap.scaled(static_cast<int>(this->scale * this->wt),
-                       static_cast<int>(this->scale * this->wt),
-                       Qt::KeepAspectRatio,
-                       Qt::SmoothTransformation);
-    this->role_figure->setPixmap(this->role_pixmap);
+    // role_pixmap = QPixmap(this->image_list.at(this->role_figure_index).filePath());
+    // role_pixmap.scaled(static_cast<int>(this->scale * this->wt),
+    //                    static_cast<int>(this->scale * this->wt),
+    //                    Qt::KeepAspectRatio,
+    //                    Qt::SmoothTransformation);
+    // this->role_figure->setPixmap(this->role_pixmap);
     this->setAutoFillBackground(true); // 设置窗口背景透明
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     //this->settingsWindow->hide();
@@ -273,13 +280,14 @@ void PetWindow::updateAnimation()
     }
 
     // 加载新的图像并缩放它
-    QPixmap newPixmap(this->image_list.at(this->role_figure_index).filePath());
-    QPixmap scaledPixmap = newPixmap.scaled(static_cast<int>(this->scale * this->wt),
-                                            static_cast<int>(
-                                                this->scale
-                                                * this->ht), // 确保这里使用正确的高度基准 'ht'
-                                            Qt::KeepAspectRatio,
-                                            Qt::SmoothTransformation);
+    // QPixmap newPixmap(this->image_list.at(this->role_figure_index).filePath());
+    QPixmap scaledPixmap = (this->vector_role_pixmap[this->role_figure_index])
+                               .scaled(static_cast<int>(this->scale * this->wt),
+                                       static_cast<int>(
+                                           this->scale
+                                           * this->ht), // 确保这里使用正确的高度基准 'ht'
+                                       Qt::KeepAspectRatio,
+                                       Qt::SmoothTransformation);
 
     // 更新 QLabel 的 QPixmap，而不是创建一个新的 QLabel
     this->role_figure->setPixmap(scaledPixmap);
@@ -460,6 +468,21 @@ void PetWindow::update_lists()
     QDir image_directory(this->base_path + QDir::separator() + this->image_path + QDir::separator()
                          + this->role_name);
     this->image_list = image_directory.entryInfoList(QDir::Files);
+    // 清空之前的 QPixmap 向量
+    this->vector_role_pixmap.clear();
+
+    // 遍历文件信息列表
+    for (const QFileInfo &fileInfo : this->image_list) {
+        // 加载图片到 QPixmap
+        QPixmap pixmap(fileInfo.filePath());
+
+        // 检查图片是否成功加载
+        if (!pixmap.isNull()) {
+            // 将有效的 QPixmap 添加到向量中
+            vector_role_pixmap.append(pixmap);
+        }
+    }
+
     QDir music_directory(this->base_path + QDir::separator() + this->music_path + QDir::separator()
                          + this->role_name);
     QFileInfoList entries = music_directory.entryInfoList(QDir::Files);
@@ -523,3 +546,45 @@ void PetWindow::mouseReleaseEvent(QMouseEvent *event)
 //     event->ignore(); // 忽略关闭事件
 //     this->hide();    // 隐藏窗口
 // }
+void PetWindow::onAIDialogTriggered()
+{
+    bool ok;
+    QString input
+        = QInputDialog::getText(this, "AI 对话", "请输入你的问题:", QLineEdit::Normal, "", &ok);
+    if (ok && !input.isEmpty()) {
+        QUrl url("https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_bot_4");
+        QNetworkRequest request(url);
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        request.setRawHeader("Authorization", ("Bearer " + accessToken).toUtf8());
+
+        QJsonObject jsonPayload;
+        QJsonArray messages;
+        QJsonObject userMessage;
+        userMessage["role"] = "user";
+        userMessage["content"] = input;
+        messages.append(userMessage);
+        jsonPayload["messages"] = messages;
+
+        QJsonDocument doc(jsonPayload);
+        QByteArray data = doc.toJson();
+
+        manager->post(request, data);
+    }
+}
+
+void PetWindow::onNetworkReplyFinished(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray responseData = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+        QJsonObject jsonObj = jsonDoc.object();
+
+        if (jsonObj.contains("result")) {
+            QString answer = jsonObj["result"].toString();
+            QMessageBox::information(this, "AI 回复", answer);
+        }
+    } else {
+        QMessageBox::warning(this, "请求出错", "请求出错: " + reply->errorString());
+    }
+    reply->deleteLater();
+}

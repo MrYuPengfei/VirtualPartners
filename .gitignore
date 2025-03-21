@@ -71,3 +71,7 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+# Ignore API keys
+*.api_key
+# Ignore password files
+*.password
