@@ -3,9 +3,10 @@
 3. 鼠标左键可以拖动人物在桌面上的位置。
 4. WindowsNT版本，请点击任务栏设置，其他系统托盘图标，将原神主题桌面伙伴设置为开启状态。
 5. 音乐素材和图片素材来源于互联网。
-6. 如需支持，请联系程序开发者:于鹏飞，mr_yupengfei@foxmail.com
-7. 本程序基于 C++ Qt6.8 开发，不用于商业用途，采用 LGPLv3 协议。
-8. 程序开源：
+6. 本程序基于 C++ Qt6.8 开发，不用于商业用途，采用 LGPLv3 协议。
+7. 支持AI在线服务，通过鼠标点击人物，进行DeepSeek-R1对话。做出回答可能需要几秒钟，请耐心等候。
+8. 如需支持，请联系程序开发者:于鹏飞，mr_yupengfei@foxmail.com
+9. 程序开源：
 - gitee：https://gitee.com/yupengfei1074064684/virtual-partners4-pc.git
 - github：https://github.com/MrYuPengfei/VirtualPartners
-9. blog：https://blog.yupengfei.space/blog/detail/2/
+- blog：https://blog.yupengfei.space/blog/detail/2/

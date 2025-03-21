@@ -16,7 +16,7 @@ const QString ACCESS_KEY_TXT = "key/access.key.txt";
 const QString SECRET_KEY_TXT = "key/secret.key.txt";
 const QString APP_ID_TXT = "key/app.id.txt";
 const QString API_URL = "https://qianfan.baidubce.com/v2/chat/completions";
-// const QString API_MODEL = "deepseek-r1-distill-qianfan-llama-70b";
-const QString API_MODEL = "ernie-4.0-8k";
+const QString API_MODEL = "deepseek-r1-distill-qianfan-llama-70b";
+// const QString API_MODEL = "ernie-4.0-8k";
 
 #endif // CONFIG_H
