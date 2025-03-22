@@ -1,5 +1,5 @@
 #define MyAppName "原神主题桌面伙伴"
-#define MyAppVersion "V2.0" 
+#define MyAppVersion "V2.0.1" 
 [Setup]
 ; 应用程序的名称和版本
 ; 安装程序的输出文件名

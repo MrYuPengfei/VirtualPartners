@@ -62,7 +62,6 @@ PetWindow::PetWindow()
     this->hide();
     // 获取静态资源列表
     this->update_lists();
-
     // 初始化音频播放器
 
     this->backgroundMusicPlayer = new QMediaPlayer(this);
@@ -137,7 +136,7 @@ void PetWindow::init_tray()
             QAction *bgm = new QAction(QString(fileName).replace(".mp3", ""), this);
             bgm->setProperty("bgm_name", fileName);
             bgm->setCheckable(true);
-            this->bgms.append(bgm); //append(role);
+            this->bgms.append(bgm);
             this->group2->addAction(bgm);
             this->menu_bgms->addAction(bgm);
             connect(bgm, &QAction::triggered, this, &PetWindow::set_bgm);
